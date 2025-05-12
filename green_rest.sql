@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1
--- Généré le : lun. 05 mai 2025 à 15:11
+-- Généré le : ven. 09 mai 2025 à 23:55
 -- Version du serveur : 10.4.32-MariaDB
 -- Version de PHP : 8.2.12
 
@@ -87,7 +87,8 @@ CREATE TABLE `produit_categorie` (
 INSERT INTO `produit_categorie` (`id_categorie`, `nom_categorie`) VALUES
 (1, 'Pare-bain'),
 (2, 'Receveurs'),
-(3, 'Parois de douche');
+(3, 'Parois de douche'),
+(4, 'Portes de douche');
 
 -- --------------------------------------------------------
 
@@ -220,7 +221,7 @@ ALTER TABLE `produit`
 -- AUTO_INCREMENT pour la table `produit_categorie`
 --
 ALTER TABLE `produit_categorie`
-  MODIFY `id_categorie` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id_categorie` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT pour la table `produit_descriptif`
