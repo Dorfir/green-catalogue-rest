@@ -183,10 +183,10 @@
         $stmt->execute(array(':nom_famille'=>$nom_famille));
         return $pdo->lastInsertId();
     }
-    function createCategorie($pdo, $nom_categorie) {
-        $request = "INSERT INTO `produit_categorie` (`id_categorie`, `nom_categorie`) VALUES (NULL, :nom_categorie)";
+    function createCategorie($pdo, $nom_categorie, $id_famille) {
+        $request = "INSERT INTO `produit_categorie` (`id_categorie`, `id_famille`, `nom_categorie`) VALUES (NULL, :id_famille, :nom_categorie)";
         $stmt = $pdo->prepare($request);
-        $stmt->execute(array(':nom_categorie'=>$nom_categorie));
+        $stmt->execute(array(':id_famille'=>$id_famille, ':nom_categorie'=>$nom_categorie));
         return $pdo->lastInsertId();
     }
     function createDescriptifs($pdo, $produit) {
