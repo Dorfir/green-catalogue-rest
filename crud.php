@@ -29,12 +29,12 @@
         public $nom_famille = "";
         public $id_categorie = 0;
         public $nom_categorie = "";
-        public $descriptifs = [];
-        public $marque = "";
         public $nom = "";
+        public $marque = "";
+        public $descriptifs = [];
+        public $images = [];
         public $prix = null;
         public $thumb = "";
-        public $images = [];
     }
     class FamilleProduit {
         public $id_famille = 0;
@@ -47,8 +47,6 @@
     }
 
     /* Execution */
-    // getAllProduits($pdo);
-
     // const produits_portesDouche = [
     //     {   
     //         famille: "Sanitaires",
