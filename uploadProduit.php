@@ -12,7 +12,7 @@ $produit->id_famille = intval($_POST['id_famille']);
 $produit->id_categorie = intval($_POST['id_categorie']);
 $produit->marque = $_POST['marque'];
 $produit->nom = $_POST['nom'];
-$produit->prix = "";
+$produit->prix = $_POST['prix'];
 $produit->thumb = "./img/produits/portesDouche_concertoAlterna_thumb.jpg";
 
 $i = 0;
@@ -35,7 +35,11 @@ while (isset($_FILES["file_image_".$i])) {
     $destPath = $uploadDir . $uniqueName;
     //todo test success move_uploaded_file
     move_uploaded_file($fileTmpPath, $destPath);
-    $produit->images[$i] = $uniqueName;
+    // $produit->images[$i] = $uniqueName;
+    $image_obj = new ImageDescriptifProduit();
+    $image_obj->image_url = $uniqueName;
+    if (isset($_POST['image_display_size_'.$i]))  $image_obj->display_size = $_POST['image_display_size_'.$i];
+    $produit->images[$i] = $image_obj;
     $i++;
 }
 

@@ -53,6 +53,11 @@
         public $id_produit = 0;
         public $index_descriptif = 0;
     }
+    class ImageDescriptifProduit {
+        public $image_url = "";
+        public $display_size = "";
+        public $index_descriptif = 0;
+    }
 
 
     /* Create functions */
@@ -109,10 +114,10 @@
     }
     function createImages($pdo, $produit) {
         foreach ($produit->images as $key => $image) {
-            $request = "INSERT INTO `produit_image` (`id_image`, `image_url`, `id_produit`, `index_image`)";
-            $request .= " VALUES (NULL, :image_url, :id_produit, :index_image)";
+            $request = "INSERT INTO `produit_image` (`id_image`, `image_url`, `display_size`, `id_produit`, `index_image`)";
+            $request .= " VALUES (NULL, :image_url, :display_size, :id_produit, :index_image)";
             $stmt = $pdo->prepare($request);
-            $stmt->execute(array(':image_url'=>$image, ':id_produit'=>$produit->id_produit, ':index_image'=>(intval($key)+1)));    
+            $stmt->execute(array(':image_url'=>$image->image_url, ':display_size'=>$image->display_size, ':id_produit'=>$produit->id_produit, ':index_image'=>(intval($key)+1)));    
         }
     }
 
@@ -273,7 +278,7 @@
 
     function getProduitImages($pdo, $id_produit) {
         $request = "";
-        $request .= "SELECT produit_image.image_url ";
+        $request .= "SELECT produit_image.image_url, produit_image.display_size ";
         $request .= "FROM `produit_image` ";
         $request .= "WHERE produit_image.id_produit=:id ";
         $request .= "ORDER BY produit_image.index_image";
@@ -285,140 +290,16 @@
 
         $images = [];
         foreach ($result as $key => $value) {
-            $images[] = $value['image_url'];
+            $image_obj = new ImageDescriptifProduit();
+            $image_obj->image_url = $value['image_url'];
+            $image_obj->display_size = $value['display_size'];
+            $images[] = $image_obj;
         }
         return $images;
     }
 
 
 
-
-
-    // SELECT produit.id_produit, produit.marque, produit.nom, produit.prix, produit.thumb, 
-    // produit.id_categorie, produit_categorie.nom_categorie, 
-    // produit.id_famille, produit_famille.nom_famille 
-    // FROM `produit` 
-    // INNER JOIN produit_categorie 
-    // ON produit.id_categorie=produit_categorie.id_categorie 
-    // AND produit.id_produit=1
-    // INNER JOIN produit_famille 
-    // ON produit.id_famille=produit_famille.id_famille 
-    // AND produit.id_produit=1;
-
-
-
-    
-    /* Execution */
-    // const produits_portesDouche = [
-    //     {   
-    //         famille: "Sanitaires",
-    //         categorie: "Portes de douche",
-    //         marque: "Concerto ALTERNA",
-    //         nom : "Porte de douche coulissante",
-    //         descriptifs : [
-    //             `
-    //             <u>Version 2 vantaux :</u><br>
-    //             1 panneau fixe et un panneau coulissant<br>
-    //             Verre transparent 6mm<br>
-    //             Profilé en aluminium<br>
-    //             Hauteur 195cm<br>
-    //             Dimensions disponibles :<br>
-    //             <ul>
-    //                 <li>120 cm</li>
-    //                 <li>140 cm</li>
-    //             </ul>
-    //             `,
-    //             `
-    //             <u>Version 3 vantaux :</u><br>
-    //             1 panneau fixe et 2 panneaux coulissants<br>
-    //             Verre transparent 6mm<br>
-    //             Profilé en aluminium<br>
-    //             Hauteur 195cm<br>
-    //             Dimensions disponibles :<br>
-    //             <ul>
-    //                 <li>90 cm</li>
-    //             </ul>
-    //             `  
-    //         ],
-    //         prix : null,
-    //         images : ["img/produits/portesDouche_concertoAlterna_01.jpg", "img/produits/portesDouche_concertoAlterna_02.jpg"],
-    //         thumb : "./img/produits/portesDouche_concertoAlterna_thumb.jpg",
-    //     },
-    //     {   
-    //         famille: "sanitaires",
-    //         categorie: "Portes de douche",
-    //         marque: "Domino ALTERNA",
-    //         nom : "Porte de douche pivotante",
-    //         descriptifs : [
-    //             `
-    //             Verre transparent securit 8mm<br>
-    //             Profilé en argent brillant, en aluminium anodisé résistant aux rayures<br>
-    //             Traité anti calcaire<br>
-    //             Pivot total intérieur et extérieur<br>
-    //             Fermeture par joint magnétique<br>
-    //             Hauteur 195 cm<br>
-    //             Dimensions disponibles :<br>
-    //             <ul>
-    //                 <li>90 cm</li>
-    //                 <li>120 cm (fixe 55 cm + pivot)</li>
-    //             </ul>
-    //             `,
-    //         ],
-    //         prix : null,
-    //         images : ["img/produits/portesDouche_dominoAlterna_01.jpg", "img/produits/portesDouche_dominoAlterna_02.jpg"],
-    //         thumb : "./img/produits/portesDouche_dominoAlterna_thumb.jpg",
-    //     },
-    //     {   
-    //         famille: "sanitaires",
-    //         categorie: "Portes de douche",
-    //         marque: "Concerto ALTERNA",
-    //         nom : "Porte de douche d'angle - retour fixe",
-    //         descriptifs : [
-    //             `
-    //             Verre transparent securit 8mm<br>
-    //             Porte à ouverture coulissante<br>
-    //             <br>
-    //             Profilé en argent brillant, en aluminium anodisé résistant aux rayures<br>
-    //             Traité anti calcaire<br>
-    //             Hauteur 195 cm<br>
-    //             <br>
-    //             Dimensions disponibles :<br>
-    //             <ul>
-    //                 <li>70 cm</li>
-    //                 <li>80 cm</li>
-    //                 <li>90 cm</li>
-    //                 <li>100 cm</li>
-    //             </ul>
-    //             `,
-    //         ],
-    //         prix : null,
-    //         images : ["img/produits/portesDouche_concertoAlternaAngle.jpg"],
-    //         thumb : "./img/produits/portesDouche_concertoAlternaAngle_thumb.jpg",
-    //     },
-    // ]
- 
-/*
-    // $produit = new Produit();
-    // $produit->id_famille = 1;
-    // $produit->id_categorie = 4;
-    // $produit->marque = "Concerto ALTERNA";
-    // $produit->nom = "Porte de douche coulissante";
-    // $produit->prix = "";
-    // $produit->thumb = "./img/produits/portesDouche_concertoAlterna_thumb.jpg";
-    // $produit->descriptifs = [
-    //     "<u>Version 2 vantaux :</u><br>1 panneau fixe et un panneau coulissant<br>Verre transparent 6mm<br>Profilé en aluminium<br>Hauteur 195cm<br>Dimensions disponibles :<br><ul><li>120 cm</li><li>140 cm</li></ul>",
-    //     "<u>Version 3 vantaux :</u><br>1 panneau fixe et 2 panneaux coulissants<br>Verre transparent 6mm<br>Profilé en aluminium<br>Hauteur 195cm<br>Dimensions disponibles :<br><ul><li>90 cm</li></ul>"
-    // ];
-    // $produit->images = [
-    //     "img/produits/portesDouche_concertoAlterna_01.jpg",
-    //     "img/produits/portesDouche_concertoAlterna_02.jpg"
-    // ];
-    // $produit = createProduct($pdo, $produit);
-
-    // $prod = getProduit($pdo, 2);
-    // echo json_encode((array)$produit);
-    // $pdo = null; // fermeture de la connexion pdo
-*/
 
 
 ?>
