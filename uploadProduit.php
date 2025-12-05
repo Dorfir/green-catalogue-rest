@@ -15,6 +15,7 @@ $produit->nom = $_POST['nom'];
 $produit->prix = $_POST['prix'];
 $produit->thumb = "./img/produits/portesDouche_concertoAlterna_thumb.jpg";
 
+
 $i = 0;
 while (isset($_POST["desc_".$i])) {
     $descriptif = new DescriptifProduit();
