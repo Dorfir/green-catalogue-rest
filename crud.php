@@ -121,6 +121,48 @@
         }
     }
 
+    /* Update functions */
+    function updateProduct($pdo, $produit) {
+
+        // INSERT INTO `produit_categorie` (`id_categorie`, `nom_categorie`) VALUES (NULL, 'Portes de douche');
+        $request = "UPDATE `produit` ";
+        $request .= "SET id_famille=:id_famille, id_categorie=:id_categorie, marque=:marque, nom=:marque, ";
+        $request .= "prix=:prix, thumb=:thumb, mise_en_page=:mise_en_page ";
+        $request .= "WHERE id_produit=:id_produit";
+        $stmt = $pdo->prepare($request);
+        $stmt->execute(array(
+            ':id_produit'=>$produit->id_produit,
+            ':id_famille'=>$produit->id_famille,
+            ':id_categorie'=>$produit->id_categorie,
+            ':marque'=>$produit->marque,
+            ':nom'=>$produit->nom,
+            ':prix'=>$produit->prix,
+            ':thumb'=>$produit->thumb,
+            ':mise_en_page'=>$produit->mise_en_page
+        ));
+
+        updateDescriptifsObject($pdo, $produit);
+        updateImages($pdo, $produit);
+
+        return $produit;
+    }
+    function updateDescriptifsObject($pdo, $produitObject) {
+        // foreach ($produitObject->descriptifs as $key => $descriptif) {
+        //     $request = "INSERT INTO `produit_descriptif` (`id_produit_descriptif`, `html`, `titre`, `id_produit`, `index_descriptif`)";
+        //     $request .= " VALUES (NULL, :html, :titre, :id_produit, :index_descriptif)";
+        //     $stmt = $pdo->prepare($request);
+        //     $stmt->execute(array(':html'=>$descriptif->html, ':titre'=>$descriptif->titre, ':id_produit'=>$produitObject->id_produit, ':index_descriptif'=>(intval($key)+1)));    
+        // }
+    }
+    function updateImages($pdo, $produit) {
+        // foreach ($produit->images as $key => $image) {
+        //     $request = "INSERT INTO `produit_image` (`id_image`, `image_url`, `display_size`, `id_produit`, `index_image`)";
+        //     $request .= " VALUES (NULL, :image_url, :display_size, :id_produit, :index_image)";
+        //     $stmt = $pdo->prepare($request);
+        //     $stmt->execute(array(':image_url'=>$image->image_url, ':display_size'=>$image->display_size, ':id_produit'=>$produit->id_produit, ':index_image'=>(intval($key)+1)));    
+        // }
+    }
+
     /* Read functions */
     function getAllProduits($pdo) {
         $liste_ids = [];
