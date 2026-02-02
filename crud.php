@@ -5,7 +5,7 @@
     // header('Access-Control-Max-Age: 600');
     // header("Content-Type:application/json");
 
-    include_once "db_connect.php";
+    include_once "connect/db_connect.php";
     
     try {
         $pdo = new PDO($dsn, $username, $password);
