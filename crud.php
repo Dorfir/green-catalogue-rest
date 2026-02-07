@@ -14,6 +14,229 @@
         echo 'Connexion échouée : ' . $e->getMessage();
     }
 
+    
+    /* ----------------------------------------------------------------- */
+    /* ----------------------------------------------------------------- */
+    /* ----------------------------------------------------------------- */
+    /* ----------------------------------------------------------------- */
+    /* ----------------------------------------------------------------- */
+
+    /* Data model */
+    class Presta {
+        public $id_presta = 0;
+        public $nom_presta = "";
+        public $id_famille = 0;
+        public $nom_famille = "";
+        public $index_presta = 0;
+        public $descriptifs = [];
+        public $article = "";
+        public $mise_en_page = 0;
+    }
+    class PrestaFamille {
+        public $id_famille = 0;
+        public $nom_famille = "";
+    }
+    class PrestaDescriptif {
+        public $id_presta_descriptif = 0;
+        public $html = "";
+        public $image_url = "";
+        public $image_display = "normal";
+        public $index_descriptif = 0;
+    }
+
+
+    /* Update functions */
+    function updatePresta($pdo, $presta) {
+
+        // INSERT INTO `produit_categorie` (`id_categorie`, `nom_categorie`) VALUES (NULL, 'Portes de douche');
+        $request = "UPDATE `presta` ";
+        $request .= "SET id_famille=:id_famille, nom_presta=:nom_presta, index_presta=:index_presta, ";
+        $request .= "article=:article, contractuel=:contractuel, mise_en_page=:mise_en_page ";
+        $request .= "WHERE id_presta=:id_presta";
+        $stmt = $pdo->prepare($request);
+        $stmt->execute(array(
+            ':id_presta'=>$presta->id_presta,
+            ':id_famille'=>$presta->id_famille,
+            ':nom_presta'=>$presta->nom_presta,
+            ':index_presta'=>$presta->index_presta,
+            ':article'=>$presta->article,
+            ':contractuel'=>$presta->contractuel,
+            ':mise_en_page'=>$presta->mise_en_page
+        ));
+
+        updatePrestaDescriptif($pdo, $presta);
+
+        return $presta;
+    }
+    function updatePrestaDescriptif($pdo, $presta) {
+        foreach ($presta->descriptifs as $key => $descriptif) {
+            $request = "INSERT INTO `presta_descriptif` (`id_presta_descriptif`, `id_presta`, `html`, `image_url`, `image_display`, `index_descriptif`)";
+            $request .= " VALUES (NULL, :id_presta, :html, :image_url, :image_display, :index_descriptif)";
+            $stmt = $pdo->prepare($request);
+            $stmt->execute(array(':id_presta'=>$presta->id_presta, ':html'=>$descriptif->html, ':image_url'=>$descriptif->image_url, ':image_display'=>$descriptif->image_display, ':index_descriptif'=>(intval($key)+1)));    
+        }
+    }
+
+    /* Create functions */
+    function createPresta($pdo, $presta) {
+
+        $request = "INSERT INTO `presta` ";
+        $request .= "(`id_presta`, `id_famille`, `nom_presta`, `index_presta`, `article`, `contractuel`, `mise_en_page`)";
+        $request .= " VALUES (NULL, :id_famille, :nom_presta, :index_presta, :article, :contractuel, :mise_en_page)";
+        $stmt = $pdo->prepare($request);
+        $stmt->execute(array(
+            ':id_famille'=>$presta->id_presta,
+            ':nom_presta'=>$presta->nom_presta,
+            ':index_presta'=>$presta->index_presta,
+            ':article'=>$presta->article,
+            ':contractuel'=>$presta->contractuel,
+            ':mise_en_page'=>$presta->mise_en_page
+        ));
+        $presta->id_presta = $pdo->lastInsertId();
+
+        createPrestaDescriptif($pdo, $presta);
+
+        return $produit;
+    }
+    function createPrestaDescriptif($pdo, $presta) {
+        foreach ($presta->descriptifs as $key => $descriptif) {
+            $request = "INSERT INTO `presta_descriptif` (`id_presta_descriptif`, `id_presta`, `html`, `image_url`, `image_display`, `index_descriptif`)";
+            $request .= " VALUES (NULL, :id_presta, :html, :image_url, :image_display, :index_descriptif)";
+            $stmt = $pdo->prepare($request);
+            $stmt->execute(array(':id_presta'=>$presta->id_presta, ':html'=>$descriptif->html, ':image_url'=>$descriptif->image_url, ':image_display'=>$descriptif->image_display, ':index_descriptif'=>(intval($key)+1)));    
+        }
+    }
+    function createPrestaFamille($pdo, $nom_famille) {
+        $request = "INSERT INTO `presta_famille` (`id_famille`, `nom_famille`) VALUES (NULL, :nom_famille)";
+        $stmt = $pdo->prepare($request);
+        $stmt->execute(array(':nom_famille'=>$nom_famille));
+        return $pdo->lastInsertId();
+    }
+   
+    /* Read functions */
+    function getAllPrestas($pdo) {
+        $liste_ids = [];
+        $request = "SELECT presta.id_presta FROM presta";
+        $stmt = $pdo->prepare($request);
+        $stmt->execute(array());
+        $result = $stmt->fetchAll();
+        $prestas = [];
+        foreach ($result as $key => $value) {
+            $prestas[] = getPrestaObject($pdo, $value['id_presta']);
+        }
+        return $prestas;
+    }
+
+    function getPrestaObject($pdo, $id_presta) {
+
+        $presta = new Presta();
+
+        $request = "";
+        $request .= "SELECT presta.id_presta, presta.nom_presta, presta.index_presta, presta.article, presta.contractuel, presta.mise_en_page, ";
+        $request .= "presta.id_famille, presta_famille.nom_famille ";
+        $request .= "FROM `presta` ";
+        $request .= "INNER JOIN presta_famille ";
+        $request .= "ON presta.id_famille = presta_famille.id_famille ";
+        $request .= "AND presta.id_presta = :id_1 ";
+
+        $stmt = $pdo->prepare($request);
+        $stmt->execute(array(':id_1'=>$id_presta));
+        $count = $stmt->rowCount();
+        $result = $stmt->fetchAll();
+
+        if ($count > 0) {
+            
+            $presta->id_presta = $result[0]['id_presta'];
+            $presta->nom_presta = $result[0]['nom_presta'];
+            $presta->index_presta = $result[0]['index_presta'];
+            $presta->article = $result[0]['article'];
+            $presta->mise_en_page = $result[0]['mise_en_page'];
+            $presta->id_famille = $result[0]['id_famille'];
+            $presta->nom_famille = $result[0]['nom_famille'];
+
+        } else { /*throw error*/ }
+        
+        $presta->descriptifs = getPrestaDescriptifs($pdo, $id_presta);
+
+        return $presta;
+
+    }
+
+    function getPrestaDescriptifs($pdo, $id_presta) {
+        $request = "";
+        $request .= "SELECT *";
+        $request .= "FROM `presta_descriptif` ";
+        $request .= "WHERE presta_descriptif.id_presta=:id ";
+        $request .= "ORDER BY presta_descriptif.index_descriptif";
+
+        $stmt = $pdo->prepare($request);
+        $stmt->execute(array(':id'=>$id_presta));
+        $count = $stmt->rowCount();
+        $result = $stmt->fetchAll();
+
+        $descriptifs = [];
+        foreach ($result as $key => $value) {
+            $descriptif = new PrestaDescriptif();
+            $descriptif->id_presta_descriptif = $value['id_presta_descriptif'];
+            $descriptif->html = $value['html'];
+            $descriptif->image_url = $value['image_url'];
+            $descriptif->image_display = $value['image_display'];
+            $descriptif->index_descriptif = $value['index_descriptif'];
+
+            $descriptifs[] = $descriptif;
+        }
+        return $descriptifs;
+    }
+
+    function getPrestaFamilles($pdo) {
+        $liste_familles = [];
+        $request = "SELECT * FROM presta_famille";
+        $stmt = $pdo->prepare($request);
+        $stmt->execute(array());
+        $result = $stmt->fetchAll();
+        foreach ($result as $key => $value) {
+            $famille = [];
+            $famille['id_famille'] = $value['id_famille'];
+            $famille['nom_famille'] = $value['nom_famille'];
+            $liste_familles[] = $famille;
+        }
+
+        foreach ($liste_familles as $key => $famille) {
+
+            $liste_familles[$key]['prestas'] = [];
+
+            $request = "SELECT nom_presta FROM presta WHERE presta.id_famille=:id ORDER BY index_presta" ;
+            $stmt = $pdo->prepare($request);
+            $stmt->execute(array(':id'=>$famille['id_famille']));
+            $result = $stmt->fetchAll();
+
+            foreach ($result as $key2 => $value) {
+                $liste_familles[$key]['prestas'][] = $value['nom_presta'];     
+            }
+        }
+
+        
+        return $liste_familles;
+    }
+
+
+    
+
+    
+    
+    
+
+
+
+
+
+
+    /* ----------------------------------------------------------------- */
+    /* ----------------------------------------------------------------- */
+    /* ----------------------------------------------------------------- */
+    /* ----------------------------------------------------------------- */
+    /* ----------------------------------------------------------------- */
+
     /* Data model */
     class Produit {
         public $id_produit = 0;
