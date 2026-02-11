@@ -96,7 +96,7 @@
 
         createPrestaDescriptif($pdo, $presta);
 
-        return $produit;
+        return $presta;
     }
     function createPrestaDescriptif($pdo, $presta) {
         foreach ($presta->descriptifs as $key => $descriptif) {
@@ -106,7 +106,7 @@
             $stmt->execute(array(':id_presta'=>$presta->id_presta, ':html'=>$descriptif->html, ':image_url'=>$descriptif->image_url, ':image_display'=>$descriptif->image_display, ':index_descriptif'=>(intval($key)+1)));    
         }
     }
-    function createPrestaFamille($pdo, $nom_famille) {
+    function createFamillePresta($pdo, $nom_famille) {
         $request = "INSERT INTO `presta_famille` (`id_famille`, `nom_famille`) VALUES (NULL, :nom_famille)";
         $stmt = $pdo->prepare($request);
         $stmt->execute(array(':nom_famille'=>$nom_famille));
@@ -190,7 +190,7 @@
 
     function getPrestaFamilles($pdo) {
         $liste_familles = [];
-        $request = "SELECT * FROM presta_famille";
+        $request = "SELECT * FROM presta_famille ORDER BY index_famille";
         $stmt = $pdo->prepare($request);
         $stmt->execute(array());
         $result = $stmt->fetchAll();
@@ -212,6 +212,40 @@
 
             foreach ($result as $key2 => $value) {
                 $liste_familles[$key]['prestas'][] = $value['nom_presta'];     
+            }
+        }
+
+        
+        return $liste_familles;
+    }
+
+    function getPrestaFamilles2($pdo) {
+        $liste_familles = [];
+        $request = "SELECT * FROM presta_famille ORDER BY index_famille";
+        $stmt = $pdo->prepare($request);
+        $stmt->execute(array());
+        $result = $stmt->fetchAll();
+        foreach ($result as $key => $value) {
+            $famille = [];
+            $famille['id_famille'] = $value['id_famille'];
+            $famille['nom_famille'] = $value['nom_famille'];
+            $liste_familles[] = $famille;
+        }
+
+        foreach ($liste_familles as $key => $famille) {
+
+            $liste_familles[$key]['prestas'] = [];
+
+            $request = "SELECT id_presta, nom_presta FROM presta WHERE presta.id_famille=:id ORDER BY index_presta" ;
+            $stmt = $pdo->prepare($request);
+            $stmt->execute(array(':id'=>$famille['id_famille']));
+            $result = $stmt->fetchAll();
+
+            foreach ($result as $key2 => $value) {
+                $desc_presta = [];
+                $desc_presta['id_presta'] = $value['id_presta'];
+                $desc_presta['nom_presta'] = $value['nom_presta'];
+                $liste_familles[$key]['prestas'][] = $desc_presta;     
             }
         }
 
